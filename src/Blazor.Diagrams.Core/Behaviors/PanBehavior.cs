@@ -15,19 +15,126 @@ public class PanBehavior : Behavior
         Diagram.PointerDown += OnPointerDown;
         Diagram.PointerMove += OnPointerMove;
         Diagram.PointerUp += OnPointerUp;
+
+        Diagram.TouchStart += OnTouchStart;
+        Diagram.TouchEnter += OnTouchEnter;
+        Diagram.TouchMove += OnTouchMove;
+        Diagram.TouchLeave += OnTouchLeave;
+        Diagram.TouchEnd += OnTouchEnd;
+        Diagram.TouchCancel += OnTouchCancel;
     }
+
+    private void OnTouchEnd(Model? model, TouchEventArgs e)
+    {
+        End();
+    }
+    private void OnTouchCancel(Model? model, TouchEventArgs e)
+    {
+        End();
+    }
+
+    private void OnTouchLeave(Model? model, TouchEventArgs e)
+    {
+        End();
+    }
+
+    private void OnTouchMove(Model? model, TouchEventArgs e)
+    {
+        var firstTouch = e.ChangedTouches?.FirstOrDefault();
+
+        if (e.ChangedTouches.Length == 1)
+        {
+            Move(firstTouch.ClientX, firstTouch.ClientY);
+
+            Diagram.TriggerOnDebug($"PanBehavior -> OnTouchStart > Move(): Touches: {e.ChangedTouches.Length} : X: {firstTouch.ClientX} Y: {firstTouch.ClientY}");
+        }
+    }
+
+    private void OnTouchEnter(Model? model, TouchEventArgs e)
+    {
+        Console.Write("OnTouchEnter>");
+
+        var firstTouch = e.ChangedTouches?.FirstOrDefault();
+
+  
+
+        Start(model, firstTouch.ClientX, firstTouch.ClientY, e.ShiftKey);
+    }
+
+    private void OnTouchStart(Model? model, TouchEventArgs e)
+    {
+
+        var firstTouch = e.ChangedTouches?.FirstOrDefault();
+
+        if (e.ChangedTouches.Length == 1)
+        {
+            Start(model, firstTouch.ClientX, firstTouch.ClientY, e.ShiftKey);
+
+            Diagram.TriggerOnDebug($"PanBehavior -> OnTouchStart > Start(): Touches: {e.ChangedTouches.Length} : X: {firstTouch.ClientX} Y: {firstTouch.ClientY}");
+        }
+
+        
+    }
+
+
+
 
     private void OnPointerDown(Model? model, PointerEventArgs e)
     {
-        if (e.Button != (int)MouseEventButton.Left)
-            return;
+        if (e.PointerType == "touch")
+        {
+            
+            
+        }
 
-        Start(model, e.ClientX, e.ClientY, e.ShiftKey);
+        else if (e.PointerType == "mouse")
+        {
+            if (e.Button != (int)MouseEventButton.Wheel)
+                return;
+
+            Start(model, e.ClientX, e.ClientY, e.ShiftKey);
+        }
+        else if (e.PointerType == "pen")
+        {
+            
+
+            Start(model, e.ClientX, e.ClientY, e.ShiftKey);
+        }
+
+
     }
 
-    private void OnPointerMove(Model? model, PointerEventArgs e) => Move(e.ClientX, e.ClientY);
+    private void OnPointerMove(Model? model, PointerEventArgs e)
+    {
+        if (e.PointerType == "touch")
+        {
+            
+        }else if (e.PointerType == "mouse")
+        {
+            Move(e.ClientX, e.ClientY);
+        }
+        else if (e.PointerType == "pen")
+        {
+            Move(e.ClientX, e.ClientY);
+        }
 
-    private void OnPointerUp(Model? model, PointerEventArgs e) => End();
+    }
+
+    private void OnPointerUp(Model? model, PointerEventArgs e)
+    {
+        if (e.PointerType == "touch")
+        {
+            
+        }
+        else if (e.PointerType == "mouse")
+        {
+            End();
+        }
+        else if (e.PointerType == "pen")
+        {
+            End();
+        }
+    }
 
     private void Start(Model? model, double clientX, double clientY, bool shiftKey)
     {
@@ -62,5 +169,11 @@ public class PanBehavior : Behavior
         Diagram.PointerDown -= OnPointerDown;
         Diagram.PointerMove -= OnPointerMove;
         Diagram.PointerUp -= OnPointerUp;
+        Diagram.TouchStart -= OnTouchStart;
+        Diagram.TouchEnter -= OnTouchEnter;
+        Diagram.TouchMove -= OnTouchMove;
+        Diagram.TouchLeave -= OnTouchLeave;
+        Diagram.TouchEnd -= OnTouchEnd;
+        Diagram.TouchCancel -= OnTouchCancel;
     }
 }

@@ -1,3 +1,96 @@
+
+let lastPanX = 0;
+let lastPanY = 0;
+
+
+
+window.touchHandler = {
+    register: function (element, dotNetHelper) {
+        let lastDistance = null;
+        let isPinching = false;
+
+        console.log("touchHandler");
+
+        if (typeof DeviceMotionEvent.requestPermission === 'function') {
+            DeviceMotionEvent.requestPermission()
+                .then(permissionState => {
+                    if (permissionState === 'granted') {
+                        // adicionar o listener aqui
+
+                        element.addEventListener('devicemotion', function (event) {
+                            console.log("devicemotion");
+                            const acceleration = event.accelerationIncludingGravity;
+
+                            if (!acceleration) return;
+
+                            const deltaX = acceleration.x || 0;
+                            const deltaY = acceleration.y || 0;
+
+                            // Suavização
+                            lastPanX += deltaX * 2;
+                            lastPanY += deltaY * 2;
+
+                            dotNetHelper.invokeMethodAsync('OnAccelerometerChanged', lastPanX, lastPanY);
+                        });
+                    }
+                })
+                .catch(console.error);
+        }
+
+        //window.addEventListener('devicemotion', function (event) {
+        //    const acceleration = event.accelerationIncludingGravity;
+
+        //    if (!acceleration) return;
+
+        //    const deltaX = acceleration.x || 0;
+        //    const deltaY = acceleration.y || 0;
+
+        //    // Suavização
+        //    lastPanX += deltaX * 2;
+        //    lastPanY += deltaY * 2;
+
+        //    dotNetHelper.invokeMethodAsync('OnAccelerometerChanged', lastPanX, lastPanY);
+        //});
+
+
+        element.addEventListener('touchmove', (e) => {
+        });
+
+        element.addEventListener('touchstart', (e) => {
+        }, { passive: false });
+
+        element.addEventListener('touchend', (e) => {
+           
+            dotNetHelper.invokeMethodAsync('OnTouchEnd', JSON.stringify(getTouches(e)));
+        }, { passive: false });
+
+        element.addEventListener('click', (e) => {
+            console.log("click");
+            if (isPinching) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+                console.log("Clique ignorado por gesto de pinch.");
+            }
+            else {
+                dotNetHelper.invokeMethodAsync('OnClick', JSON.stringify({
+                    x: e.clientX,
+                    y: e.clientY,
+                    button: e.button
+                }));
+            }
+
+        });
+        
+        }
+    }
+}
+
+
+
+
+
+
+
 var s = {
     canvases: {},
     tracked: {},
@@ -48,6 +141,24 @@ var s = {
     }
 };
 window.ZBlazorDiagrams = s;
+
+
+
+//window.addEventListener('devicemotion', function (event) {
+//    const acceleration = event.accelerationIncludingGravity;
+
+//    if (!acceleration) return;
+
+//    const deltaX = acceleration.x || 0;
+//    const deltaY = acceleration.y || 0;
+
+//    // Suavização
+//    lastPanX += deltaX * 2;
+//    lastPanY += deltaY * 2;
+
+//    dotNetHelper.invokeMethodAsync('OnAccelerometerChanged', lastPanX, lastPanY);
+//});
+
 window.addEventListener('scroll', () => {
     for (id in s.canvases) {
         const canvas = s.canvases[id];

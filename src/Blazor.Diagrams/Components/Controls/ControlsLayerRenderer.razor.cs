@@ -70,6 +70,9 @@ public partial class ControlsLayerRenderer : IDisposable
                 builder.AddAttribute(3, "onpointerdown",
                     EventCallback.Factory.Create<PointerEventArgs>(this, e => OnPointerDown(e, model, ec)));
                 builder.AddEventStopPropagationAttribute(4, "onpointerdown", true);
+            
+            
+            
             }
 
             builder.OpenComponent(5, componentType);
@@ -84,4 +87,8 @@ public partial class ControlsLayerRenderer : IDisposable
     {
         if (e.Button == 0 || e.Buttons == 1) await control.OnPointerDown(BlazorDiagram, model, e.ToCore());
     }
+
+    //private async Task OnTouch
+
+
 }

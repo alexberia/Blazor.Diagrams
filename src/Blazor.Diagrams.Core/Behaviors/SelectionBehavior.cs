@@ -12,13 +12,20 @@ public class SelectionBehavior : Behavior
 
     private void OnPointerDown(Model? model, PointerEventArgs e)
     {
-        var ctrlKey = e.CtrlKey;
+        if (e.PointerType == "touch")
+        {
+
+        }
+
+
+            var ctrlKey = e.CtrlKey;
         switch (model)
         {
             case null:
-                Diagram.UnselectAll();
+                //Diagram.UnselectAll();
                 break;
             case SelectableModel sm when ctrlKey && sm.Selected:
+                
                 Diagram.UnselectModel(sm);
                 break;
             case SelectableModel sm:

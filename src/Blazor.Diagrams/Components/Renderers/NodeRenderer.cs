@@ -117,9 +117,35 @@ public class NodeRenderer : ComponentBase, IDisposable
         builder.AddEventStopPropagationAttribute(7, "onpointerup", true);
         builder.AddAttribute(8, "onmouseenter", EventCallback.Factory.Create<MouseEventArgs>(this, OnMouseEnter));
         builder.AddAttribute(9, "onmouseleave", EventCallback.Factory.Create<MouseEventArgs>(this, OnMouseLeave));
-        builder.AddElementReferenceCapture(10, value => _element = value);
-        builder.OpenComponent(11, componentType);
-        builder.AddAttribute(12, "Node", Node);
+
+        builder.AddAttribute(10, "ontouchstart", EventCallback.Factory.Create<TouchEventArgs>(this, OnTouchStart));
+        builder.AddEventStopPropagationAttribute(11, "ontouchstart", true);
+
+        builder.AddAttribute(12, "ontouchcancel", EventCallback.Factory.Create<TouchEventArgs>(this, OnTouchCancel));
+        builder.AddEventStopPropagationAttribute(13, "ontouchcancel", true);
+
+        builder.AddAttribute(14, "ontouchend", EventCallback.Factory.Create<TouchEventArgs>(this, OnTouchEnd));
+        builder.AddEventStopPropagationAttribute(15, "ontouchend", true);
+        builder.AddAttribute(16, "ontouchenter", EventCallback.Factory.Create<TouchEventArgs>(this, OnTouchEnter));
+        builder.AddEventStopPropagationAttribute(17, "ontouchenter", true);
+        builder.AddAttribute(18, "ontouchleave", EventCallback.Factory.Create<TouchEventArgs>(this, OnTouchLeave));
+        builder.AddEventStopPropagationAttribute(19, "ontouchleave", true);
+        builder.AddAttribute(20, "ontouchmove", EventCallback.Factory.Create<TouchEventArgs>(this, OnTouchMove));
+        builder.AddEventStopPropagationAttribute(21, "ontouchmove", true);
+
+
+
+
+
+
+
+
+        builder.AddElementReferenceCapture(22, value => _element = value);
+        builder.OpenComponent(23, componentType);
+        builder.AddAttribute(24, "Node", Node);
+
+        
+
         builder.CloseComponent();
 
         builder.CloseElement();
@@ -177,4 +203,40 @@ public class NodeRenderer : ComponentBase, IDisposable
     {
         BlazorDiagram.TriggerPointerLeave(Node, e.ToCore());
     }
+
+
+    private void OnTouchStart(TouchEventArgs e)
+    {
+        BlazorDiagram.TriggerTouchStart(Node, e.ToCore());
+    }
+
+    private void OnTouchCancel(TouchEventArgs e)
+    {
+        BlazorDiagram.TriggerOnTouchCancel(Node, e.ToCore());
+    }
+
+    private void OnTouchEnd(TouchEventArgs e)
+    {
+        BlazorDiagram.TriggerOnTouchEnd(Node, e.ToCore());
+    }
+
+    private void OnTouchEnter(TouchEventArgs e)
+    {
+        BlazorDiagram.TriggerOnTouchEnter(Node, e.ToCore());
+    }
+
+    private void OnTouchLeave(TouchEventArgs e)
+    {
+        BlazorDiagram.TriggerOnTouchLeave(Node, e.ToCore());
+    }
+
+    private void OnTouchMove(TouchEventArgs e)
+    {
+        BlazorDiagram.TriggerOnTouchMove(Node, e.ToCore());
+    }
+
+
+
+
+
 }

@@ -71,6 +71,18 @@ public partial class DiagramCanvas : IAsyncDisposable
         BlazorDiagram.SetContainer(rect);
     }
 
+    [JSInvokable]
+    public void OnAccelerometerChanged(double x, double y)
+    {
+        // Suavização ou limitação opcional aqui
+
+        //BlazorDiagram.SetPan((int)x, (int)y);
+
+        BlazorDiagram.TriggerAccelerometerChanged(null, (int)x, (int)y);
+    }
+
+
+
     protected override bool ShouldRender()
     {
         if (!_shouldRender) return false;
@@ -102,6 +114,41 @@ public partial class DiagramCanvas : IAsyncDisposable
     private void OnWheel(WheelEventArgs e)
     {
         BlazorDiagram.TriggerWheel(e.ToCore());
+    }
+
+    private void OnTouchStart(TouchEventArgs e)
+    {
+        BlazorDiagram.TriggerTouchStart(null, e.ToCore());
+    }
+
+    private void OnTouchCancel(TouchEventArgs e)
+    {
+        BlazorDiagram.TriggerOnTouchCancel(null, e.ToCore());
+    }
+
+    private void OnTouchEnd(TouchEventArgs e)
+    {
+        BlazorDiagram.TriggerOnTouchEnd(null, e.ToCore());
+    }
+
+    private void OnTouchEnter(TouchEventArgs e)
+    {
+        BlazorDiagram.TriggerOnTouchEnter(null, e.ToCore());
+    }
+
+    private void OnTouchLeave(TouchEventArgs e)
+    {
+        BlazorDiagram.TriggerOnTouchLeave(null, e.ToCore());
+    }
+
+    private void OnTouchMove(TouchEventArgs e)
+    {
+        BlazorDiagram.TriggerOnTouchMove(null, e.ToCore());
+    }
+
+    private void OnDebug(string e)
+    {
+        BlazorDiagram.TriggerOnDebug(e);
     }
 
     private void OnDiagramChanged()

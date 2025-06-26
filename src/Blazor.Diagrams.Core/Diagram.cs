@@ -18,6 +18,17 @@ public abstract class Diagram
 {
     private readonly Dictionary<Type, Behavior> _behaviors;
     private readonly List<SelectableModel> _orderedSelectables;
+   
+    
+    public event Action<Model?, TouchEventArgs>? TouchStart;
+    public event Action<Model?, TouchEventArgs>? TouchCancel;
+    public event Action<Model?, TouchEventArgs>? TouchEnd;
+    public event Action<Model?, TouchEventArgs>? TouchEnter;
+    public event Action<Model?, TouchEventArgs>? TouchLeave;
+    public event Action<Model?, TouchEventArgs>? TouchMove;
+    public event Action<string>? Debug;
+
+    public event Action<Model?, int, int>? AccelerometerChanged;
 
     public event Action<Model?, PointerEventArgs>? PointerDown;
     public event Action<Model?, PointerEventArgs>? PointerMove;
@@ -28,12 +39,15 @@ public abstract class Diagram
     public event Action<WheelEventArgs>? Wheel;
     public event Action<Model?, PointerEventArgs>? PointerClick;
     public event Action<Model?, PointerEventArgs>? PointerDoubleClick;
-
     public event Action<SelectableModel>? SelectionChanged;
     public event Action? PanChanged;
     public event Action? ZoomChanged;
     public event Action? ContainerChanged;
     public event Action? Changed;
+
+  
+
+    
 
     protected Diagram(bool registerDefaultBehaviors = true)
     {
@@ -65,6 +79,7 @@ public abstract class Diagram
         RegisterBehavior(new KeyboardShortcutsBehavior(this));
         RegisterBehavior(new ControlsBehavior(this));
         RegisterBehavior(new VirtualizationBehavior(this));
+        RegisterBehavior(new MomentumBehavior(this));
     }
 
     public abstract DiagramOptions Options { get; }
@@ -251,6 +266,43 @@ public abstract class Diagram
         Refresh();
     }
 
+    public async Task SetZoomAnimate(double targetZoom, Point targetPan, int durationMs = 300, int fps = 60)
+    {
+
+        await AnimateZoomAndPanAsync(targetZoom, targetPan, durationMs, fps);
+
+        ZoomChanged?.Invoke();
+        Refresh();
+    }
+
+    private async Task AnimateZoomAndPanAsync(double targetZoom, Point targetPan, int durationMs = 300, int fps = 60)
+    {
+        var initialZoom = Zoom;
+        var initialPan = Pan;
+
+        int steps = Math.Max(1, durationMs * fps / 1000);
+        double dt = 1.0 / steps;
+
+        for (int i = 1; i <= steps; i++)
+        {
+            double t = i * dt;
+            double eased = EaseOutCubic(t);
+
+            double zoom = Lerp(initialZoom, targetZoom, eased);
+            double panX = Lerp(initialPan.X, targetPan.X, eased);
+            double panY = Lerp(initialPan.Y, targetPan.Y, eased);
+
+            SetZoom(zoom);
+            SetPan(panX, panY);
+
+            await Task.Delay(1000 / fps);
+        }
+    }
+
+    // Funções auxiliares
+    private static double Lerp(double a, double b, double t) => a + (b - a) * t;
+    private static double EaseOutCubic(double t) => 1 - Math.Pow(1 - t, 3);
+
     public void SetContainer(Rectangle newRect)
     {
         if (newRect.Equals(Container))
@@ -384,6 +436,7 @@ public abstract class Diagram
 
     #region Events
 
+    public void TriggerAccelerometerChanged(Model? model, int x,int y) => AccelerometerChanged?.Invoke(model, x, y);
     public void TriggerPointerDown(Model? model, PointerEventArgs e) => PointerDown?.Invoke(model, e);
 
     public void TriggerPointerMove(Model? model, PointerEventArgs e) => PointerMove?.Invoke(model, e);
@@ -401,6 +454,21 @@ public abstract class Diagram
     public void TriggerPointerClick(Model? model, PointerEventArgs e) => PointerClick?.Invoke(model, e);
 
     public void TriggerPointerDoubleClick(Model? model, PointerEventArgs e) => PointerDoubleClick?.Invoke(model, e);
+
+  
+    public void TriggerTouchStart(Model? model, TouchEventArgs e) => TouchStart?.Invoke(model, e);
+
+    public void TriggerOnTouchCancel(Model? model, TouchEventArgs e) => TouchCancel?.Invoke(model, e);
+
+    public void TriggerOnTouchEnd(Model? model, TouchEventArgs e) => TouchEnd?.Invoke(model, e);
+
+    public void TriggerOnTouchEnter(Model? model, TouchEventArgs e) => TouchEnter?.Invoke(model, e);
+
+    public void TriggerOnTouchLeave(Model? model, TouchEventArgs e) => TouchLeave?.Invoke(model, e);
+
+    public void TriggerOnTouchMove(Model? model, TouchEventArgs e) => TouchMove?.Invoke(model, e);
+
+    public void TriggerOnDebug(string e) => Debug?.Invoke(e);
 
     #endregion
 }
